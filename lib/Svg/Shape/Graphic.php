@@ -9,88 +9,88 @@ use Svg\Shape\Path;
 
 class Graphic extends Shape {
 
-	protected $graphic;	
-	protected $origine;
-	protected $echelle = array(50, 1);
-	protected $abscisse;
-	protected $ordonnee;
-	protected $maxAbcisse;
-	protected $maxOrdonnee;
-	protected $reperesAbcisse = array();
-	protected $reperesOrdonnees = array();
-	protected $datas = array();
-	protected $fullCurve;
-	protected $pathCurve;
-	protected $datas;
+    protected $graphic; 
+    protected $origine;
+    protected $echelle = array(50, 1);
+    protected $abscisse;
+    protected $ordonnee;
+    protected $maxAbcisse;
+    protected $maxOrdonnee;
+    protected $reperesAbcisse = array();
+    protected $reperesOrdonnees = array();
+    protected $anchors = array();
+    protected $fullCurve;
+    protected $pathCurve;
+    protected $datas = array();
 
-	public function __construct($datas) {
-		$this->datas = $datas;
-	}
+    public function __construct(array $datas) {
+        $this->datas = $datas;
+    }
 
-	private function getCoordonnees($x, $y) {
+    private function getCoordonnees($x, $y) {
         return array(
-        	$this->origine->getX() + ($x*$this->echelle[0]),
-        	$this->origine->getY() - ($y*$this->echelle[1])
+            $this->origine->getX() + ($x*$this->echelle[0]),
+            $this->origine->getY() - ($y*$this->echelle[1])
         );
     }
 
     public function orderDatas() {
-    	$this->datas = ksort($this->datas);
+        $this->datas = ksort($this->datas);
+        return $this;
     }
 
-	public function display() {
-
-		this->origine = new Point(400, 400);
-		$this->maxAbcisse = new Point(max(array_keys($datas))*$this->echelle[0]+$this->origine->getX(), $this->origine->getY());
-		$this->maxOrdonnee = new Point($this->origine->getX(), ($this->origine->getY() - (max(array_values($datas))*$this->echelle[1])));
-		$this->minAbcisse = new Point(min(array_keys($datas))*$this->echelle[0]+$this->origine->getX(), $this->origine->getY());
-		$this->minOrdonnee = new Point($this->origine->getX(), ($this->origine->getY() - (min(array_values($datas))*$this->echelle[1])));
-		$this->abscisse = Shape::path()
-			->addPoint('M', $this->minAbcisse)
-			->addPoint('L', $this->maxAbcisse);
-		$this->abscisse->getStyle()->setStroke('black')
-						->setStrokeWidth('1');
-		$this->ordonnee = Shape::path()
-			->addPoint('M', $this->minOrdonnee)
-			->addPoint('L', $this->maxOrdonnee);
-		$this->ordonnee->getStyle()->setStroke('black')
-						->setStrokeWidth('1');
-
-
-		$this->graphic = Shape::rect(new Point($this->minAbcisse->getX(), $this->maxOrdonnee->getY()), max(array_keys($datas))*$this->echelle[0]+$this->origine->getX(), ($this->origine->getY() - (min(array_values($datas))*$this->echelle[1])));
-		$this->graphic->getStyle()->setFill('transparent');
-
-		$this->fullCurve = Shape::path();
-		$this->pathCurve = Shape::path();
-
-		$this->fullCurve->addPoint('M', $this->minAbcisse);
-		$cpt = 0;
-		foreach ($datas as $key => $value) {
-			$point = new Point($this->getCoordonnees($key, $value));
-			$shape = Shape::circle($point, 4);
-			$shape->setClass('circle');
-			$this->datas[] = $shape;
-			$this->fullCurve->addPoint('L', $point);
-			$this->pathCurve->addPoint(($cpt==0) ? 'M': 'L', $point);
-			$cpt++;
-		}
-
-		$this->pathCurve->setClass('curve');
-		$this->fullCurve->addPoint('L', $this->maxAbcisse);
-		$this->fullCurve->addPoint('L', $this->origine);
-		$this->fullCurve->getStyle()->setFill('E5E5E5');
+    public function display() {
+        $this->origine = new Point(400, 400);
+        $this->maxAbcisse = new Point(max(array_keys($this->datas))*$this->echelle[0]+$this->origine->getX(), $this->origine->getY());
+        $this->maxOrdonnee = new Point($this->origine->getX(), ($this->origine->getY() - (max(array_values($this->datas))*$this->echelle[1])));
+        $this->minAbcisse = new Point(min(array_keys($this->datas))*$this->echelle[0]+$this->origine->getX(), $this->origine->getY());
+        $this->minOrdonnee = new Point($this->origine->getX(), ($this->origine->getY() - (min(array_values($this->datas))*$this->echelle[1])));
+        $this->abscisse = Shape::path()
+            ->addPoint('M', $this->minAbcisse)
+            ->addPoint('L', $this->maxAbcisse);
+        $this->abscisse->getStyle()->setStroke('black')
+                        ->setStrokeWidth('1');
+        $this->ordonnee = Shape::path()
+            ->addPoint('M', $this->minOrdonnee)
+            ->addPoint('L', $this->maxOrdonnee);
+        $this->ordonnee->getStyle()->setStroke('black')
+                        ->setStrokeWidth('1');
 
 
+        $this->graphic = Shape::rect(new Point($this->minAbcisse->getX(), $this->maxOrdonnee->getY()), max(array_keys($this->datas))*$this->echelle[0]+$this->origine->getX(), ($this->origine->getY() - (min(array_values($this->datas))*$this->echelle[1])));
+        $this->graphic->getStyle()->setFill('transparent');
 
-		$this->graphic->display();
-		$this->fullCurve->display();
-		$this->abscisse->display();
-		$this->ordonnee->display();
-		$this->pathCurve->display();
-		foreach ($this->datas as $data) {
-			$data->display();
-		}
-	}
+        $this->fullCurve = Shape::path();
+        $this->pathCurve = Shape::path();
+
+        $this->fullCurve->addPoint('M', $this->minAbcisse);
+        $cpt = 0;
+        foreach ($this->datas as $key => $value) {
+            $point = new Point($this->getCoordonnees($key, $value));
+            $shape = Shape::circle($point, 4);
+            $shape->setClass('circle');
+            $this->anchors[] = $shape;
+            $this->fullCurve->addPoint('L', $point);
+            $this->pathCurve->addPoint(($cpt==0) ? 'M': 'L', $point);
+            $cpt++;
+        }
+
+        $this->pathCurve->setClass('curve');
+        $this->fullCurve->addPoint('L', $this->maxAbcisse);
+        $this->fullCurve->addPoint('L', $this->origine);
+        $this->fullCurve->getStyle()->setFill('E5E5E5');
+
+
+
+        $this->graphic->display();
+        $this->fullCurve->display();
+        $this->abscisse->display();
+        $this->ordonnee->display();
+        $this->pathCurve->display();
+        foreach ($this->anchors as $anchor) {
+            $anchor->display();
+        }
+    }
 
 }
 
