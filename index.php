@@ -1,18 +1,7 @@
-<?php 
-
-/* ERROR REPORTING */
-error_reporting(E_ALL);
-ini_set("display_errors", 1);
-
-
-require 'autoloader.php';
-
-
-
-?>
+<?php require 'autoloader.php' ?>
 <!DOCTYPE>
     <head>
-        <title>Tests</title>
+        <title>Svg</title>
         <style>
             .circle {
                 transition-duration: 1s;
@@ -35,11 +24,13 @@ require 'autoloader.php';
             }
         </style>
     </head>
-    <body>
+        <svg width="100%" height="100%">
+            <rect x="0" y="0" width="100%" height="100%" style="fill:red; "  class=""/>
+            <path d="M 50% 50% L 100% 100% L 0% 100%" style="fill: #E5E5E5;stroke:black;stroke-width: 3px;" class=""/>
+        </svg>
         <?php
-            $svg = new Svg\Svg(800, 800);
 
-            $svg->add(Svg\Shape\Shape::graphic(array(
+            $datas = array(
                 -8 => 98,
                 -7 => 123,
                 -6 => 12,
@@ -50,19 +41,38 @@ require 'autoloader.php';
                 -1 => -22,
                 0 => 300,
                 1 => 164,
+                3 => 580,
                 2 => 40,
-                3 => 380,
                 5 => 320,
                 6 => 259,
                 7 => 123,
+                23 => 34,
+            );
+
+            // $graphic = new SvgGraphic($datas, array(
+            //     'height' => '800px',
+            //     'width' => '800px',
+            //     'x' => array(-400, 400),                // array(int, int) | 'auto'
+            //     'y' => array(-400, 400),                // array(int, int) | 'auto'
+            //     'echelle' => array(1,1),                // array(int, int)
+            //     'disableNegativeValue' => false,        // true | false
+            //     'disableNegativeKey' => false,          // true | false
+            //     'showSteps' => true,                    // true | false | array(true, false) | array(false, true)
+            //     'steps' => 'in',                        // 'in' | 'out'
+            //     'unities' => array(50, 10)
+            //     'ksort' => true,                        // true | false
+            //     'sort' => false,                        // true | false
+            //     'style' => 'default';                   // StyleGraphic | 'nameOfADefinedStyle'
+            // ));
+
+
+            $svg = new Svg\Svg('100%', '100%');
+
+            $svg->add(Svg\Shape\Shape::graphic($datas, new Svg\Shape\Point(0, 0), 100, 100, array(
+                'percent' => true,
             )));
 
             $svg->display();
             ?>
-
-            <svg version="1.1" id="mustach" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
-         width="100px" height="100px" viewBox="0 0 100 100" enable-background="new 0 0 100 100" xml:space="preserve">
-<path d="M83.5,63.833c-50.833,29-67.167-26.166-67.167-26.166s11.333,19.333,33.333,0c22-19.333,34-6,34-6L83.5,63.833z"/>
-</svg>
     </body>
 </html>

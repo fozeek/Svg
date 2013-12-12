@@ -21,8 +21,8 @@ abstract class Shape {
         return new Path($style);
     }
 
-    static public function graphic(array $datas = array()) {
-        return new Graphic($datas);
+    static public function graphic(array $datas = array(), Point $anchor, $width, $height, array $options = array()) {
+        return new Graphic($datas, $anchor, $width, $height, $options);
     }
 
     public function getStyle() {

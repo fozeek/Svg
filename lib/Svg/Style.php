@@ -7,6 +7,7 @@ class Style {
     protected $fill;
     protected $stroke;
     protected $strokeWidth;
+    protected $strokeLinejoin;          // mitter | round | bevel
     protected $textAnchor;
     protected $baselineShift;
 
@@ -37,6 +38,9 @@ class Style {
         if(!empty($this->baselineShift)) {
             $style .= 'baseline-shift:'.$this->baselineShift.'; ';
         }
+        if(!empty($this->strokeLinejoin)) {
+            $style .= 'stroke-linejoin:'.$this->strokeLinejoin.'; ';
+        }
         return $style;
     }
 
@@ -64,6 +68,15 @@ class Style {
 
     public function setStrokeWidth($strokeWidth) {
         $this->strokeWidth = $strokeWidth;
+        return $this;
+    }
+
+    public function getStrokeLineJoin() {
+        return $this->strokeLinejoin;
+    }
+
+    public function setStrokeLineJoin($strokeLinejoin) {
+        $this->strokeLinejoin = $strokeLinejoin;
         return $this;
     }
 
