@@ -19,7 +19,10 @@ class Graphic extends Shape {
     protected $fullCurve;
     protected $pathCurve;
     protected $datas = array();
-    protected $steps;
+    protected $xSteps = array();
+    protected $ySteps = array();
+    protected $grid = array();
+
 
     public function __construct(array $datas, Point $anchor, $width, $height, array $options = array()) {
 
@@ -99,19 +102,7 @@ class Graphic extends Shape {
             $cpt++;
         }
 
-        $this->steps = array();
-
-        $moyenne = round($lenghX/5);
-        $min = round($xMin/$moyenne);
-
-        for ($cpt = $min;$cpt <= $xMax;$cpt = $cpt + $moyenne) {
-            $this->steps[] = Shape::text(new Point($this->getCoordonneeX($cpt, $percent), $this->origine->getY()+15), $cpt, new Style(array('textAnchor' => 'middle'))); 
-        }
-        $moyenne = round($lenghY/5);
-        $min = round($yMin/$moyenne);
-        for ($cpt = $min;$cpt <= $yMax;$cpt = $cpt + $moyenne) {
-            $this->steps[] = Shape::text(new Point($this->origine->getX()+5, $this->getCoordonneeY($cpt, $percent)), $cpt, new Style(array('textAnchor' => 'right', 'baselineShift' => '-0.5ex'))); 
-        }
+        $this->generateSteps($lenghX, $lenghY, $xMax, $xMin, $yMax, $yMin, $percent);
 
         $this->pathCurve->setClass('curve');
         $this->fullCurve->addPoint('L', $this->maxAbcisse);
@@ -130,6 +121,57 @@ class Graphic extends Shape {
             ($this->origine->getX() + ($x*$this->echelle[0])).$percent,
             ($this->origine->getY() - ($y*$this->echelle[1])).$percent
         );
+    }
+
+    private function generateSteps($lenghX, $lenghY, $xMax, $xMin, $yMax, $yMin, $percent) {
+        $echelleUnits = $this->echelle[0];
+        $units = 1;
+        while($echelleUnits<50) {
+            $echelleUnits += $this->echelle[0];
+            $units ++;
+        }
+        for ($cpt = $units;$cpt <= $xMax;$cpt += $units) {
+            $this->xSteps[] = Shape::text(new Point($this->getCoordonneeX($cpt, $percent), $this->origine->getY()+15), $cpt, new Style(array('textAnchor' => 'middle'))); 
+        }
+        for ($cpt = -$units;$cpt >= $xMin;$cpt -= $units) {
+            $this->xSteps[] = Shape::text(new Point($this->getCoordonneeX($cpt, $percent), $this->origine->getY()+15), $cpt, new Style(array('textAnchor' => 'middle'))); 
+        }
+
+        $echelleUnits = $this->echelle[1];
+        $units = 1;
+        while($echelleUnits<50) {
+            $echelleUnits += $this->echelle[1];
+            $units ++;
+        }
+
+        for ($cpt = $units;$cpt <= $yMax;$cpt += $units) {
+            $this->ySteps[] = Shape::text(new Point($this->origine->getX()+10, $this->getCoordonneeY($cpt, $percent)), $cpt, new Style(array('textAnchor' => 'right', 'baselineShift' => '-0.5ex'))); 
+        }
+        for ($cpt = -$units;$cpt >= $yMin;$cpt -= $units) {
+            $this->ySteps[] = Shape::text(new Point($this->origine->getX()+10, $this->getCoordonneeY($cpt, $percent)), $cpt, new Style(array('textAnchor' => 'right', 'baselineShift' => '-0.5ex'))); 
+        }
+
+        $this->generateGrid($xMax, $xMin, $yMax, $yMin, $percent);
+    }
+
+    private function generateGrid($xMax, $xMin, $yMax, $yMin, $percent) {
+
+        foreach ($this->xSteps as $step) {
+            $line = Shape::path()
+                ->addPoint('M', new Point($step->getAnchor()->getX(), $this->getCoordonneeY($yMax, $percent)))
+                ->addPoint('L', new Point($step->getAnchor()->getX(), $this->getCoordonneeY($yMin, $percent)));
+            $line->getStyle()->setStroke('#ccc')->setStrokeWidth(1);
+            $this->grid[] = $line;
+        }
+
+        foreach ($this->ySteps as $step) {
+            $line = Shape::path()
+                ->addPoint('M', new Point($this->getCoordonneeX($xMax, $percent), $step->getAnchor()->getY()))
+                ->addPoint('L', new Point($this->getCoordonneeX($xMin, $percent), $step->getAnchor()->getY()));
+            $line->getStyle()->setStroke('#ccc')->setStrokeWidth(1);
+            $this->grid[] = $line;
+        }
+
     }
 
     private function getCoordonneeX($x, $percent) {
@@ -157,6 +199,9 @@ class Graphic extends Shape {
 
     public function display() {
         //$this->graphic->display();
+        foreach ($this->grid as $line) {
+            $line->display();
+        }
         $this->fullCurve->display();
         $this->abscisse->display();
         $this->ordonnee->display();
@@ -164,7 +209,10 @@ class Graphic extends Shape {
         foreach ($this->anchors as $anchor) {
             $anchor->display();
         }
-        foreach ($this->steps as $step) {
+        foreach ($this->xSteps as $step) {
+            $step->display();
+        }
+        foreach ($this->ySteps as $step) {
             $step->display();
         }
     }

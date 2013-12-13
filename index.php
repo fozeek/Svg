@@ -70,11 +70,8 @@
 
             $svg = new Svg\Svg('100%', '100%');
 
-            $svg->add(Svg\Shape\Shape::graphic($datas, new Svg\Shape\Point(10, 10), 800, 100, array(
-            )));
-            $svg->add(Svg\Shape\Shape::graphic($datas, new Svg\Shape\Point(50, 50), 1400, 900, array(
-            )));
-            $svg->add(Svg\Shape\Shape::graphic($datas, new Svg\Shape\Point(100, 200), 800, 300, array(
+            
+            $svg->add(Svg\Shape\Shape::graphic($datas, new Svg\Shape\Point(100, 200), 1400, 800, array(
             )));
 
             $svg->display();
