@@ -11,9 +11,11 @@ class Graphic extends Shape {
     protected $echelle = array(50, 1);
     protected $abscisse;
     protected $ordonnee;
-    protected $maxAbcisse;
+    protected $maxAbscisse;
     protected $maxOrdonnee;
-    protected $reperesAbcisse = array();
+    protected $minAbscisse;
+    protected $minOrdonnee;
+    protected $reperesAbscisse = array();
     protected $reperesOrdonnees = array();
     protected $anchors = array();
     protected $fullCurve;
@@ -92,39 +94,86 @@ class Graphic extends Shape {
             $this->yMin = min(array_values($this->datas));
         }
 
-        $this->lenghX = abs($this->xMax)+abs($this->xMin);
-        $this->lenghY = abs($this->yMax)+abs($this->yMin);
+        
+        $this->lenghX = $this->xMax - $this->xMin;
+        $this->lenghY = $this->yMax - $this->yMin;
 
         $this->echelle = array(
             $this->options->read('width')/$this->lenghX,
             $this->options->read('height')/$this->lenghY,
         );
 
-        $this->origine = new Point(($this->options->read('anchor')->getX() + abs($this->xMin)*$this->echelle[0]), ($this->options->read('anchor')->getX() + $this->yMax*$this->echelle[1]));
-        $this->maxAbcisse = new Point((max(array_keys($this->datas))*$this->echelle[0]+$this->origine->getX()).$this->percent, ($this->origine->getY()).$this->percent);
-        $this->maxOrdonnee = new Point(($this->origine->getX()).$this->percent, ($this->origine->getY() - (max(array_values($this->datas))*$this->echelle[1])).$this->percent);
-        $this->minAbcisse = new Point((min(array_keys($this->datas))*$this->echelle[0]+$this->origine->getX()).$this->percent, ($this->origine->getY()).$this->percent);
-        $this->minOrdonnee = new Point(($this->origine->getX()).$this->percent, ($this->origine->getY() - (min(array_values($this->datas))*$this->echelle[1])).$this->percent);
+        if($this->xMin>0) {
+            $moveX = -$this->xMin;
+        }
+        elseif($this->xMax<0) {
+            $moveX = -$this->xMin;
+        }
+        else {
+            $moveX = abs($this->xMin);
+        }
+        if($this->yMin>0) {
+            $moveY = $this->yMin;
+        }
+        elseif($this->yMax<0) {
+            $moveY = $this->yMin;
+        }
+        else {
+            $moveY = $this->yMin;
+        }
+
+        $this->origine = new Point(($this->options->read('anchor')->getX() + $moveX*$this->echelle[0]), ($this->options->read('anchor')->getY() + $this->lenghY*$this->echelle[1] + $moveY*$this->echelle[1]));
+
+        
+        if($this->yMin > 0) {
+            $this->abscisseY = $this->getCoordonneeY($this->yMin);
+        }
+        elseif($this->yMax < 0){
+            $this->abscisseY = $this->getCoordonneeY($this->yMax);
+        }
+        else {
+            $this->abscisseY = $this->origine->getY();
+        }
+
+        if($this->xMin > 0) {
+            $this->ordonneX = $this->getCoordonneeX($this->xMin);
+        }
+        elseif($this->xMax < 0){
+            $this->ordonneX = $this->getCoordonneeX($this->xMax);
+        }
+        else {
+            $this->ordonneX = $this->origine->getX();
+        }
+
+        $this->maxAbscisse = new Point($this->getCoordonneeX($this->xMax), $this->abscisseY);
+        $this->minAbscisse = new Point($this->getCoordonneeX($this->xMin), $this->abscisseY);
+        $this->maxOrdonnee = new Point($this->ordonneX, $this->getCoordonneeY($this->yMax));
+        $this->minOrdonnee = new Point($this->ordonneX, $this->getCoordonneeY($this->yMin));
+
         $this->abscisse = Shape::line(
-            new Point(($this->options->read('anchor')->getX()).$this->percent, ($this->origine->getY()).$this->percent),
-            new Point(($this->options->read('anchor')->getX()+$this->options->read('width')).$this->percent, ($this->origine->getY()).$this->percent)
+            // new Point(($this->options->read('anchor')->getX()).$this->percent, ($this->origine->getY()).$this->percent),
+            // new Point(($this->options->read('anchor')->getX()+$this->options->read('width')).$this->percent, ($this->origine->getY()).$this->percent)
+            $this->minAbscisse,
+            $this->maxAbscisse
         );
         $this->abscisse->getStyle()->setStroke('black')
                         ->setStrokeWidth('1');
         $this->ordonnee = Shape::line(
-            new Point(($this->origine->getX()).$this->percent, ($this->options->read('anchor')->getX()).$this->percent),
-            new Point(($this->origine->getX()).$this->percent, ($this->options->read('anchor')->getX() + $this->options->read('height')).$this->percent)
+            // new Point(($this->origine->getX()).$this->percent, ($this->options->read('anchor')->getY()).$this->percent),
+            // new Point(($this->origine->getX()).$this->percent, ($this->options->read('anchor')->getY() + $this->options->read('height')).$this->percent)
+            $this->minOrdonnee,
+            $this->maxOrdonnee
         );
         $this->ordonnee->getStyle()->setStroke('black')
                         ->setStrokeWidth('1');
 
         $this->graphic = Shape::rect($this->options->read('anchor'), $this->options->read('width').$this->percent, $this->options->read('height').$this->percent);
-        $this->graphic->getStyle()->setFill('transparent');
+        $this->graphic->getStyle()->setFill('#F9F9F9');
 
         $this->fullCurve = Shape::path();
         $this->pathCurve = Shape::path();
 
-        $this->fullCurve->addPoint('M', $this->minAbcisse);
+        $this->fullCurve->addPoint('M', $this->minAbscisse);
         $cpt = 0;
         foreach ($this->datas as $key => $value) {
             $point = new Point($this->getCoordonnees($key, $value));
@@ -138,10 +187,10 @@ class Graphic extends Shape {
 
         $this->generateSteps();
 
-        $this->pathCurve->setClass('curve');
-        $this->fullCurve->addPoint('L', $this->maxAbcisse);
+        $this->pathCurve->setClass('path-curve');
+        $this->fullCurve->addPoint('L', $this->maxAbscisse);
         $this->fullCurve->addPoint('Z');
-        $this->fullCurve->getStyle()->setFill('transparent');
+        $this->fullCurve->setClass('full-curve');
 
     }
 
@@ -160,10 +209,14 @@ class Graphic extends Shape {
             $units ++;
         }
         for ($cpt = $units;$cpt <= $this->xMax;$cpt += $units) {
-            $this->xSteps[] = Shape::text(new Point($this->getCoordonneeX($cpt), $this->origine->getY()+15), $cpt, new Style(array('textAnchor' => 'middle'))); 
+            if($cpt > $this->xMin) {
+                $this->xSteps[] = Shape::text(new Point($this->getCoordonneeX($cpt), $this->abscisseY+15), $cpt, new Style(array('textAnchor' => 'middle')));
+            }
         }
         for ($cpt = -$units;$cpt >= $this->xMin;$cpt -= $units) {
-            $this->xSteps[] = Shape::text(new Point($this->getCoordonneeX($cpt), $this->origine->getY()+15), $cpt, new Style(array('textAnchor' => 'middle'))); 
+            if($cpt < $this->xMax) {
+                $this->xSteps[] = Shape::text(new Point($this->getCoordonneeX($cpt), $this->abscisseY+15), $cpt, new Style(array('textAnchor' => 'middle')));
+            }
         }
 
         $echelleUnits = $this->echelle[1];
@@ -174,10 +227,14 @@ class Graphic extends Shape {
         }
 
         for ($cpt = $units;$cpt <= $this->yMax;$cpt += $units) {
-            $this->ySteps[] = Shape::text(new Point($this->origine->getX()+10, $this->getCoordonneeY($cpt)), $cpt, new Style(array('textAnchor' => 'right', 'baselineShift' => '-0.5ex'))); 
+            if($cpt > $this->yMin) {
+                $this->ySteps[] = Shape::text(new Point($this->ordonneX+10, $this->getCoordonneeY($cpt)), $cpt, new Style(array('textAnchor' => 'right', 'baselineShift' => '-0.5ex'))); 
+            }
         }
         for ($cpt = -$units;$cpt >= $this->yMin;$cpt -= $units) {
-            $this->ySteps[] = Shape::text(new Point($this->origine->getX()+10, $this->getCoordonneeY($cpt)), $cpt, new Style(array('textAnchor' => 'right', 'baselineShift' => '-0.5ex'))); 
+            if($cpt < $this->yMax) {
+                $this->ySteps[] = Shape::text(new Point($this->ordonneX+10, $this->getCoordonneeY($cpt)), $cpt, new Style(array('textAnchor' => 'right', 'baselineShift' => '-0.5ex'))); 
+            }
         }
 
         $this->generateGrid();
@@ -217,10 +274,13 @@ class Graphic extends Shape {
     }
 
     public function display() {
-        //$this->graphic->display();
+        $this->graphic->display();
         foreach ($this->grid as $line) {
             $line->display();
         }
+
+        //shape::circle($this->origine, 10)->setClass('circle')->display();
+
         $this->fullCurve->display();
         $this->abscisse->display();
         $this->ordonnee->display();
