@@ -103,26 +103,7 @@ class Graphic extends Shape {
             $this->options->read('height')/$this->lenghY,
         );
 
-        if($this->xMin>0) {
-            $moveX = -$this->xMin;
-        }
-        elseif($this->xMax<0) {
-            $moveX = -$this->xMin;
-        }
-        else {
-            $moveX = abs($this->xMin);
-        }
-        if($this->yMin>0) {
-            $moveY = $this->yMin;
-        }
-        elseif($this->yMax<0) {
-            $moveY = $this->yMin;
-        }
-        else {
-            $moveY = $this->yMin;
-        }
-
-        $this->origine = new Point(($this->options->read('anchor')->getX() + $moveX*$this->echelle[0]), ($this->options->read('anchor')->getY() + $this->lenghY*$this->echelle[1] + $moveY*$this->echelle[1]));
+        $this->origine = new Point(($this->options->read('anchor')->getX() + (-$this->xMin)*$this->echelle[0]), ($this->options->read('anchor')->getY() + $this->lenghY*$this->echelle[1] + $this->yMin*$this->echelle[1]));
 
         
         if($this->yMin > 0) {
