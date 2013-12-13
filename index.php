@@ -4,14 +4,15 @@
         <title>Svg</title>
         <style>
             .circle {
-                transition-duration: 1s;
-                fill: red;
-                stroke: red;
-                stroke-width: 1;
+                transition-duration: 0.5s;
+                fill: #1db34f;
+                stroke: #16873c;
+                stroke-width: 2px;
                 cursor: pointer;
+                box-shadow: 0px 0px 200px black;
             }
             .circle:hover {
-                stroke-width: 12;
+                /*stroke-width: 10px;*/
             }
             .curve {
                 transition-duration: 1s;
@@ -22,14 +23,16 @@
             svg {
                 
             }
+
+            svg .curve {
+                stroke: #1db34f;
+                stroke-width: 2px;
+                stroke-opacity: 1;
+                fill: none;
+            }
         </style>
     </head>
     <body style="margin: 0px;">
-        <!--<svg width="100%" height="100%">
-            <rect x="0" y="0" width="100%" height="100%" style="fill:red; "  class=""/>
-            <path d="M 50% 50% L 100% 100% L 0% 100%" style="fill: #E5E5E5;stroke:black;stroke-width: 3px;" class=""/>
-            <line x1="50%" y1="50%" x2="100%" y2="100%" stroke="red" />
-        </svg>-->
         <?php
 
             $datas = array(
@@ -51,27 +54,15 @@
                 23 => 34,
             );
 
-            // $graphic = new SvgGraphic($datas, array(
-            //     'height' => '800px',
-            //     'width' => '800px',
-            //     'x' => array(-400, 400),                // array(int, int) | 'auto'
-            //     'y' => array(-400, 400),                // array(int, int) | 'auto'
-            //     'echelle' => array(1,1),                // array(int, int)
-            //     'disableNegativeValue' => false,        // true | false
-            //     'disableNegativeKey' => false,          // true | false
-            //     'showSteps' => true,                    // true | false | array(true, false) | array(false, true)
-            //     'steps' => 'in',                        // 'in' | 'out'
-            //     'unities' => array(50, 10)
-            //     'ksort' => true,                        // true | false
-            //     'sort' => false,                        // true | false
-            //     'style' => 'default';                   // StyleGraphic | 'nameOfADefinedStyle'
-            // ));
-
-
             $svg = new Svg\Svg('100%', '100%');
-
             
-            $svg->add(Svg\Shape\Shape::graphic($datas, new Svg\Shape\Point(100, 200), 1400, 800, array(
+            $svg->add(Svg\Shape\Shape::graphic($datas, array(
+                'anchor' => new Svg\Shape\Point(100, 200),
+                'width' => 1400,
+                'height' => 800,
+                'steps' => array(
+                    'minXGap' => 100,
+                ),
             )));
 
             $svg->display();

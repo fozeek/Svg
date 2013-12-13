@@ -22,69 +22,103 @@ class Graphic extends Shape {
     protected $xSteps = array();
     protected $ySteps = array();
     protected $grid = array();
+    protected $minGapXStep = 50;
+    protected $minGapYStep = 40;
+    protected $lenghX;
+    protected $lenghY;
+    protected $xMax;
+    protected $xMin;
+    protected $yMax;
+    protected $yMin;
+    protected $defaultOptions;
 
+    private function setDefaultOptions() {
+        $this->defaultOptions = array(
+            'anchor' => new Point(0, 0),
+            'width' => 400,
+            'height' => 400,
+            'percent' => false,
+            'grid' => true,
+            'full_curve' => true,
+            'steps' => array(
+                'show' => true,
+                'minXGap' => 50,
+                'minYGap' => 50
+            ),
+            'style' => array(
+                'points' => array('class' => 'point'),
+                'path_curve' => array('class' => 'path-curve'),
+                'full_curve' => array('class' => 'full-curve'),
+            ),
+        );
+    }
 
-    public function __construct(array $datas, Point $anchor, $width, $height, array $options = array()) {
+    public function __construct(array $datas, array $options = array()) {
 
-        if(array_key_exists('percent', $options) && $options['percent']) {
-            $percent = '%';
+        $this->setDefaultOptions();
+
+        $this->options = new \Utility\Storage\Storage($this->defaultOptions);
+        $this->options->merge($options);
+
+        if($this->options->read('percent')) {
+            $this->percent = '%';
         }
         else {
-            $percent = '';
+            $this->percent = '';
         }
 
         $this->datas = $datas;
         $this->ksortDatas();
         $count = count($this->datas);
 
-        if(array_key_exists('xMax', $options)) {
-            $xMax = $options['xMax'];
+        if($this->options->read('xMax')) {
+            $this->xMax = $options['xMax'];
         } else {
-            $xMax = max(array_keys($this->datas));
+            $this->xMax = max(array_keys($this->datas));
         }
-        if(array_key_exists('yMax', $options)) {
-            $yMax = $options['yMax'];
+        if($this->options->read('yMax')) {
+            $this->yMax = $options['yMax'];
         } else {
-            $yMax = max(array_values($this->datas));
+            $this->yMax = max(array_values($this->datas));
         }
-        if(array_key_exists('xMin', $options)) {
-            $xMin = $options['xMin'];
+        if($this->options->read('xMin')) {
+            $this->xMin = $options['xMin'];
         } else {
-            $xMin = min(array_keys($this->datas));
+            $this->xMin = min(array_keys($this->datas));
         }
-        if(array_key_exists('yMin', $options)) {
-            $yMin = $options['yMin'];
+        if($this->options->read('yMin')) {
+            $this->yMin = $options['yMin'];
         } else {
-            $yMin = min(array_values($this->datas));
+            $this->yMin = min(array_values($this->datas));
         }
 
-        $lenghX = abs($xMax)+abs($xMin);
-        $lenghY = abs($yMax)+abs($yMin);
+        $this->lenghX = abs($this->xMax)+abs($this->xMin);
+        $this->lenghY = abs($this->yMax)+abs($this->yMin);
 
         $this->echelle = array(
-            $width/$lenghX,
-            $height/$lenghY,
+            $this->options->read('width')/$this->lenghX,
+            $this->options->read('height')/$this->lenghY,
         );
 
-        $this->origine = new Point(($anchor->getX() + abs($xMin)*$this->echelle[0]), ($anchor->getX() + $yMax*$this->echelle[1]));
-        $this->maxAbcisse = new Point((max(array_keys($this->datas))*$this->echelle[0]+$this->origine->getX()).$percent, ($this->origine->getY()).$percent);
-        $this->maxOrdonnee = new Point(($this->origine->getX()).$percent, ($this->origine->getY() - (max(array_values($this->datas))*$this->echelle[1])).$percent);
-        $this->minAbcisse = new Point((min(array_keys($this->datas))*$this->echelle[0]+$this->origine->getX()).$percent, ($this->origine->getY()).$percent);
-        $this->minOrdonnee = new Point(($this->origine->getX()).$percent, ($this->origine->getY() - (min(array_values($this->datas))*$this->echelle[1])).$percent);
+        $this->origine = new Point(($this->options->read('anchor')->getX() + abs($this->xMin)*$this->echelle[0]), ($this->options->read('anchor')->getX() + $this->yMax*$this->echelle[1]));
+        $this->maxAbcisse = new Point((max(array_keys($this->datas))*$this->echelle[0]+$this->origine->getX()).$this->percent, ($this->origine->getY()).$this->percent);
+        $this->maxOrdonnee = new Point(($this->origine->getX()).$this->percent, ($this->origine->getY() - (max(array_values($this->datas))*$this->echelle[1])).$this->percent);
+        $this->minAbcisse = new Point((min(array_keys($this->datas))*$this->echelle[0]+$this->origine->getX()).$this->percent, ($this->origine->getY()).$this->percent);
+        $this->minOrdonnee = new Point(($this->origine->getX()).$this->percent, ($this->origine->getY() - (min(array_values($this->datas))*$this->echelle[1])).$this->percent);
         $this->abscisse = Shape::line(
-            new Point(($anchor->getX()).$percent, ($this->origine->getY()).$percent),
-            new Point(($anchor->getX()+$width).$percent, ($this->origine->getY()).$percent)
+            new Point(($this->options->read('anchor')->getX()).$this->percent, ($this->origine->getY()).$this->percent),
+            new Point(($this->options->read('anchor')->getX()+$this->options->read('width')).$this->percent, ($this->origine->getY()).$this->percent)
         );
         $this->abscisse->getStyle()->setStroke('black')
                         ->setStrokeWidth('1');
         $this->ordonnee = Shape::line(
-            new Point(($this->origine->getX()).$percent, ($anchor->getX()).$percent),
-            new Point(($this->origine->getX()).$percent, ($anchor->getX() + $height).$percent)
+            new Point(($this->origine->getX()).$this->percent, ($this->options->read('anchor')->getX()).$this->percent),
+            new Point(($this->origine->getX()).$this->percent, ($this->options->read('anchor')->getX() + $this->options->read('height')).$this->percent)
         );
         $this->ordonnee->getStyle()->setStroke('black')
                         ->setStrokeWidth('1');
 
-        $this->graphic = Shape::rect($anchor, $width.$percent, $height.$percent);
+        $this->graphic = Shape::rect($this->options->read('anchor'), $this->options->read('width').$this->percent, $this->options->read('height').$this->percent);
         $this->graphic->getStyle()->setFill('transparent');
 
         $this->fullCurve = Shape::path();
@@ -93,7 +127,7 @@ class Graphic extends Shape {
         $this->fullCurve->addPoint('M', $this->minAbcisse);
         $cpt = 0;
         foreach ($this->datas as $key => $value) {
-            $point = new Point($this->getCoordonnees($key, $value, (array_key_exists('percent', $options) && $options['percent'])));
+            $point = new Point($this->getCoordonnees($key, $value));
             $shape = Shape::circle($point, 4);
             $shape->setClass('circle');
             $this->anchors[] = $shape;
@@ -102,94 +136,79 @@ class Graphic extends Shape {
             $cpt++;
         }
 
-        $this->generateSteps($lenghX, $lenghY, $xMax, $xMin, $yMax, $yMin, $percent);
+        $this->generateSteps();
 
         $this->pathCurve->setClass('curve');
         $this->fullCurve->addPoint('L', $this->maxAbcisse);
-        $this->fullCurve->addPoint('L', $this->origine);
-        $this->fullCurve->getStyle()->setFill('#E5E5E5');
+        $this->fullCurve->addPoint('Z');
+        $this->fullCurve->getStyle()->setFill('transparent');
 
     }
 
-    private function getCoordonnees($x, $y, $percent) {
-        if($percent) {
-            $percent = '%';
-        } else {
-            $percent = '';
-        }
+    private function getCoordonnees($x, $y) {
         return array(
-            ($this->origine->getX() + ($x*$this->echelle[0])).$percent,
-            ($this->origine->getY() - ($y*$this->echelle[1])).$percent
+            ($this->origine->getX() + ($x*$this->echelle[0])).$this->percent,
+            ($this->origine->getY() - ($y*$this->echelle[1])).$this->percent
         );
     }
 
-    private function generateSteps($lenghX, $lenghY, $xMax, $xMin, $yMax, $yMin, $percent) {
+    private function generateSteps() {
         $echelleUnits = $this->echelle[0];
         $units = 1;
-        while($echelleUnits<50) {
+        while($echelleUnits<$this->options->read('steps.minXGap')) {
             $echelleUnits += $this->echelle[0];
             $units ++;
         }
-        for ($cpt = $units;$cpt <= $xMax;$cpt += $units) {
-            $this->xSteps[] = Shape::text(new Point($this->getCoordonneeX($cpt, $percent), $this->origine->getY()+15), $cpt, new Style(array('textAnchor' => 'middle'))); 
+        for ($cpt = $units;$cpt <= $this->xMax;$cpt += $units) {
+            $this->xSteps[] = Shape::text(new Point($this->getCoordonneeX($cpt), $this->origine->getY()+15), $cpt, new Style(array('textAnchor' => 'middle'))); 
         }
-        for ($cpt = -$units;$cpt >= $xMin;$cpt -= $units) {
-            $this->xSteps[] = Shape::text(new Point($this->getCoordonneeX($cpt, $percent), $this->origine->getY()+15), $cpt, new Style(array('textAnchor' => 'middle'))); 
+        for ($cpt = -$units;$cpt >= $this->xMin;$cpt -= $units) {
+            $this->xSteps[] = Shape::text(new Point($this->getCoordonneeX($cpt), $this->origine->getY()+15), $cpt, new Style(array('textAnchor' => 'middle'))); 
         }
 
         $echelleUnits = $this->echelle[1];
         $units = 1;
-        while($echelleUnits<50) {
+        while($echelleUnits<$this->options->read('steps.minYGap')) {
             $echelleUnits += $this->echelle[1];
             $units ++;
         }
 
-        for ($cpt = $units;$cpt <= $yMax;$cpt += $units) {
-            $this->ySteps[] = Shape::text(new Point($this->origine->getX()+10, $this->getCoordonneeY($cpt, $percent)), $cpt, new Style(array('textAnchor' => 'right', 'baselineShift' => '-0.5ex'))); 
+        for ($cpt = $units;$cpt <= $this->yMax;$cpt += $units) {
+            $this->ySteps[] = Shape::text(new Point($this->origine->getX()+10, $this->getCoordonneeY($cpt)), $cpt, new Style(array('textAnchor' => 'right', 'baselineShift' => '-0.5ex'))); 
         }
-        for ($cpt = -$units;$cpt >= $yMin;$cpt -= $units) {
-            $this->ySteps[] = Shape::text(new Point($this->origine->getX()+10, $this->getCoordonneeY($cpt, $percent)), $cpt, new Style(array('textAnchor' => 'right', 'baselineShift' => '-0.5ex'))); 
+        for ($cpt = -$units;$cpt >= $this->yMin;$cpt -= $units) {
+            $this->ySteps[] = Shape::text(new Point($this->origine->getX()+10, $this->getCoordonneeY($cpt)), $cpt, new Style(array('textAnchor' => 'right', 'baselineShift' => '-0.5ex'))); 
         }
 
-        $this->generateGrid($xMax, $xMin, $yMax, $yMin, $percent);
+        $this->generateGrid();
     }
 
-    private function generateGrid($xMax, $xMin, $yMax, $yMin, $percent) {
+    private function generateGrid() {
 
         foreach ($this->xSteps as $step) {
             $line = Shape::path()
-                ->addPoint('M', new Point($step->getAnchor()->getX(), $this->getCoordonneeY($yMax, $percent)))
-                ->addPoint('L', new Point($step->getAnchor()->getX(), $this->getCoordonneeY($yMin, $percent)));
+                ->addPoint('M', new Point($step->getAnchor()->getX(), $this->getCoordonneeY($this->yMax)))
+                ->addPoint('L', new Point($step->getAnchor()->getX(), $this->getCoordonneeY($this->yMin)));
             $line->getStyle()->setStroke('#ccc')->setStrokeWidth(1);
             $this->grid[] = $line;
         }
 
         foreach ($this->ySteps as $step) {
             $line = Shape::path()
-                ->addPoint('M', new Point($this->getCoordonneeX($xMax, $percent), $step->getAnchor()->getY()))
-                ->addPoint('L', new Point($this->getCoordonneeX($xMin, $percent), $step->getAnchor()->getY()));
+                ->addPoint('M', new Point($this->getCoordonneeX($this->xMax), $step->getAnchor()->getY()))
+                ->addPoint('L', new Point($this->getCoordonneeX($this->xMin), $step->getAnchor()->getY()));
             $line->getStyle()->setStroke('#ccc')->setStrokeWidth(1);
             $this->grid[] = $line;
         }
 
     }
 
-    private function getCoordonneeX($x, $percent) {
-        if($percent) {
-            $percent = '%';
-        } else {
-            $percent = '';
-        }
-        return ($this->origine->getX() + ($x*$this->echelle[0])).$percent;
+    private function getCoordonneeX($x) {
+        return ($this->origine->getX() + ($x*$this->echelle[0])).$this->percent;
     }
 
-    private function getCoordonneeY($y, $percent) {
-        if($percent) {
-            $percent = '%';
-        } else {
-            $percent = '';
-        }
-        return ($this->origine->getY() - ($y*$this->echelle[1])).$percent;
+    private function getCoordonneeY($y) {
+        return ($this->origine->getY() - ($y*$this->echelle[1])).$this->percent;
     }
 
     public function ksortDatas() {
