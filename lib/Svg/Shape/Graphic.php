@@ -2,10 +2,7 @@
 
 namespace Svg\Shape;
 
-use Svg\Shape\Shape;
-use Svg\Shape\Rectangle;
-use Svg\Shape\Point;
-use Svg\Shape\Path;
+use Svg\Style;
 
 class Graphic extends Shape {
 
@@ -22,6 +19,7 @@ class Graphic extends Shape {
     protected $fullCurve;
     protected $pathCurve;
     protected $datas = array();
+    protected $steps;
 
     public function __construct(array $datas, Point $anchor, $width, $height, array $options = array()) {
 
@@ -70,14 +68,16 @@ class Graphic extends Shape {
         $this->maxOrdonnee = new Point(($this->origine->getX()).$percent, ($this->origine->getY() - (max(array_values($this->datas))*$this->echelle[1])).$percent);
         $this->minAbcisse = new Point((min(array_keys($this->datas))*$this->echelle[0]+$this->origine->getX()).$percent, ($this->origine->getY()).$percent);
         $this->minOrdonnee = new Point(($this->origine->getX()).$percent, ($this->origine->getY() - (min(array_values($this->datas))*$this->echelle[1])).$percent);
-        $this->abscisse = Shape::path()
-            ->addPoint('M', new Point(($anchor->getX()).$percent, ($this->origine->getY()).$percent))
-            ->addPoint('L', new Point(($anchor->getX()+$width).$percent, ($this->origine->getY()).$percent));
+        $this->abscisse = Shape::line(
+            new Point(($anchor->getX()).$percent, ($this->origine->getY()).$percent),
+            new Point(($anchor->getX()+$width).$percent, ($this->origine->getY()).$percent)
+        );
         $this->abscisse->getStyle()->setStroke('black')
                         ->setStrokeWidth('1');
-        $this->ordonnee = Shape::path()
-            ->addPoint('M', new Point(($this->origine->getX()).$percent, ($anchor->getX()).$percent))
-            ->addPoint('L', new Point(($this->origine->getX()).$percent, ($anchor->getX() + $height).$percent));
+        $this->ordonnee = Shape::line(
+            new Point(($this->origine->getX()).$percent, ($anchor->getX()).$percent),
+            new Point(($this->origine->getX()).$percent, ($anchor->getX() + $height).$percent)
+        );
         $this->ordonnee->getStyle()->setStroke('black')
                         ->setStrokeWidth('1');
 
@@ -90,7 +90,7 @@ class Graphic extends Shape {
         $this->fullCurve->addPoint('M', $this->minAbcisse);
         $cpt = 0;
         foreach ($this->datas as $key => $value) {
-            $point = new Point($this->getCoordonnees($key, $value, true));
+            $point = new Point($this->getCoordonnees($key, $value, (array_key_exists('percent', $options) && $options['percent'])));
             $shape = Shape::circle($point, 4);
             $shape->setClass('circle');
             $this->anchors[] = $shape;
@@ -99,11 +99,24 @@ class Graphic extends Shape {
             $cpt++;
         }
 
+        $this->steps = array();
+
+        $moyenne = round($lenghX/5);
+        $min = round($xMin/$moyenne);
+
+        for ($cpt = $min;$cpt <= $xMax;$cpt = $cpt + $moyenne) {
+            $this->steps[] = Shape::text(new Point($this->getCoordonneeX($cpt, $percent), $this->origine->getY()+15), $cpt, new Style(array('textAnchor' => 'middle'))); 
+        }
+        $moyenne = round($lenghY/5);
+        $min = round($yMin/$moyenne);
+        for ($cpt = $min;$cpt <= $yMax;$cpt = $cpt + $moyenne) {
+            $this->steps[] = Shape::text(new Point($this->origine->getX()+5, $this->getCoordonneeY($cpt, $percent)), $cpt, new Style(array('textAnchor' => 'right', 'baselineShift' => '-0.5ex'))); 
+        }
+
         $this->pathCurve->setClass('curve');
         $this->fullCurve->addPoint('L', $this->maxAbcisse);
         $this->fullCurve->addPoint('L', $this->origine);
         $this->fullCurve->getStyle()->setFill('#E5E5E5');
-
 
     }
 
@@ -119,19 +132,40 @@ class Graphic extends Shape {
         );
     }
 
+    private function getCoordonneeX($x, $percent) {
+        if($percent) {
+            $percent = '%';
+        } else {
+            $percent = '';
+        }
+        return ($this->origine->getX() + ($x*$this->echelle[0])).$percent;
+    }
+
+    private function getCoordonneeY($y, $percent) {
+        if($percent) {
+            $percent = '%';
+        } else {
+            $percent = '';
+        }
+        return ($this->origine->getY() - ($y*$this->echelle[1])).$percent;
+    }
+
     public function ksortDatas() {
         ksort($this->datas);
         return $this;
     }
 
     public function display() {
-        $this->graphic->display();
+        //$this->graphic->display();
         $this->fullCurve->display();
         $this->abscisse->display();
         $this->ordonnee->display();
         $this->pathCurve->display();
         foreach ($this->anchors as $anchor) {
             $anchor->display();
+        }
+        foreach ($this->steps as $step) {
+            $step->display();
         }
     }
 

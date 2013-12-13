@@ -20,14 +20,16 @@
                 stroke-width: 2;
             }
             svg {
-                border: 1px solid black;
+                
             }
         </style>
     </head>
-        <svg width="100%" height="100%">
+    <body style="margin: 0px;">
+        <!--<svg width="100%" height="100%">
             <rect x="0" y="0" width="100%" height="100%" style="fill:red; "  class=""/>
             <path d="M 50% 50% L 100% 100% L 0% 100%" style="fill: #E5E5E5;stroke:black;stroke-width: 3px;" class=""/>
-        </svg>
+            <line x1="50%" y1="50%" x2="100%" y2="100%" stroke="red" />
+        </svg>-->
         <?php
 
             $datas = array(
@@ -68,8 +70,11 @@
 
             $svg = new Svg\Svg('100%', '100%');
 
-            $svg->add(Svg\Shape\Shape::graphic($datas, new Svg\Shape\Point(0, 0), 100, 100, array(
-                'percent' => true,
+            $svg->add(Svg\Shape\Shape::graphic($datas, new Svg\Shape\Point(10, 10), 800, 100, array(
+            )));
+            $svg->add(Svg\Shape\Shape::graphic($datas, new Svg\Shape\Point(50, 50), 1400, 900, array(
+            )));
+            $svg->add(Svg\Shape\Shape::graphic($datas, new Svg\Shape\Point(100, 200), 800, 300, array(
             )));
 
             $svg->display();

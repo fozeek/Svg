@@ -8,6 +8,7 @@ class Svg {
 
     protected $width;
     protected $height;
+    protected $viewBox;
     protected $shapes = array();
 
     public function __construct($width, $height) {

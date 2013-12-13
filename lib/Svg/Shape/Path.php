@@ -28,7 +28,7 @@ class Path extends Shape {
     public function display() {
         $d = '';
         foreach ($this->path as $value) {
-            $d .= ' '.$value['link'].' '.$value['point']->getX().' '.$value['point']->getY();
+            $d .= $value['link'].''.$value['point']->getX().','.$value['point']->getY();
         }
         echo '<path d="'.$d.'" style="'.parent::getStyle()->getString().'" class="'.parent::getClass().'"/>';
     }

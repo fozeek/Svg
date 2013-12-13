@@ -2,17 +2,23 @@
 
 namespace Svg\Shape;
 
-use Svg\Shape;
-use Svg\Shape\Point;
+use Svg\Style;
 
 class Text extends Shape {
 
     protected $anchor;
     protected $text;
 
-    public function __construct(Point $anchor, $text) {
+    public function __construct(Point $anchor, $text, Style $style = null) {
         $this->anchor = $anchor;
         $this->text = $text;
+        if($style !== null) {
+            parent::setStyle($style);
+        }
+    }
+
+    public function display() {
+        echo '<text x="'.$this->anchor->getX().'" y="'.$this->anchor->getY().'" style="'.$this->getStyle()->getString().'">'.$this->text.'</text>';
     }
 
     public function getAnchor() {

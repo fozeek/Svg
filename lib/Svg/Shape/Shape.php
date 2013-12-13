@@ -17,12 +17,20 @@ abstract class Shape {
         return new Rect($anchor, $width, $height, $style);
     }
 
+    static public function text(Point $anchor, $text, Style $style = null) {
+        return new Text($anchor, $text, $style);
+    }
+
     static public function path(Style $style = null) {
         return new Path($style);
     }
 
     static public function graphic(array $datas = array(), Point $anchor, $width, $height, array $options = array()) {
         return new Graphic($datas, $anchor, $width, $height, $options);
+    }
+
+    static public function line(Point $point1, Point $point2,  Style $style = null) {
+        return new Line($point1, $point2, $style);
     }
 
     public function getStyle() {
