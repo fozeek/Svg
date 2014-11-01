@@ -4,5 +4,10 @@
     "dist": {
         "url": "https://github.com/fozeek/Svg.git",
         "type": "git"
+    },
+    "autoload": {
+        "psr-0": {
+            "Fozeek\\Svg": "lib"
+        }
     }
 }
