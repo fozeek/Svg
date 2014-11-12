@@ -42,6 +42,10 @@ class Graphic extends Shape {
             'percent' => false,
             'grid' => true,
             'full_curve' => true,
+            'path' => true,
+            'gausse' => false,
+            'barre' => false,
+            'barre_height' => 40,
             'steps' => array(
                 'show' => true,
                 'minXGap' => 50,
@@ -149,20 +153,58 @@ class Graphic extends Shape {
                         ->setStrokeWidth('1');
 
         $this->graphic = Shape::rect($this->options->read('anchor'), $this->options->read('width').$this->percent, $this->options->read('height').$this->percent);
-        $this->graphic->getStyle()->setFill('#F9F9F9');
+        $this->graphic->setClass('rect');
 
         $this->fullCurve = Shape::path();
         $this->pathCurve = Shape::path();
 
         $this->fullCurve->addPoint('M', $this->minAbscisse);
         $cpt = 0;
+        $lastPoint;
         foreach ($this->datas as $key => $value) {
             $point = new Point($this->getCoordonnees($key, $value));
-            $shape = Shape::circle($point, 4);
-            $shape->setClass('circle');
+            
+
+            if($this->options->read('barre')) {
+                $pointRect = new Point($point->getX()-($this->options->read('barre_height')/2), $point->getY());
+                $height = $value*$this->echelle[1];
+                if($height<0) {
+                    $height = -$height;
+                    $pointRect->setY($this->getCoordonneeY(0));
+                }
+                $shape = Shape::rect($pointRect, $this->options->read('barre_height'), $height);
+                $shape->setClass('barre');
+            } else {
+                $shape = Shape::circle($point, 4);
+                $shape->setClass('circle');
+            }
+
             $this->anchors[] = $shape;
             $this->fullCurve->addPoint('L', $point);
-            $this->pathCurve->addPoint(($cpt==0) ? 'M': 'L', $point);
+
+            $options = array();
+            if($this->options->read('gausse')) {
+                // Calcul du q (Bézier curves)
+                $q = array();
+                $keyNext = $key+1;
+                if(array_key_exists((string)$keyNext, $this->datas)) {
+                    $nextCoordonnees = $this->getCoordonnees($keyNext, $this->datas[$keyNext]);
+                    $q[0] = ($nextCoordonnees[0] - $point->getX())/2+20; // Point de distorsion
+                    $q[1] = ($nextCoordonnees[1] - $point->getY())/2-50; // Point de distorsion
+                    $q[2] = $nextCoordonnees[0] - $point->getX(); // Déplacement en X
+                    $q[3] = $nextCoordonnees[1] - $point->getY(); // Déplacement en Y
+                    //debug
+                    $shape = Shape::circle(new Point(
+                        $point->getX() + ($nextCoordonnees[0] - $point->getX())/2,
+                        $point->getY() + ($nextCoordonnees[1] - $point->getY())/2
+                    ), 4);
+                    $shape->setClass('circle-red');
+                    $this->anchors[] = $shape;
+                }
+                $options['q'] = implode(' ', $q);
+            }
+
+            $this->pathCurve->addPoint(($cpt==0) ? 'M': 'L', $point, $options);
             $cpt++;
         }
 
@@ -227,7 +269,7 @@ class Graphic extends Shape {
             $line = Shape::path()
                 ->addPoint('M', new Point($step->getAnchor()->getX(), $this->getCoordonneeY($this->yMax)))
                 ->addPoint('L', new Point($step->getAnchor()->getX(), $this->getCoordonneeY($this->yMin)));
-            $line->getStyle()->setStroke('#ccc')->setStrokeWidth(1);
+            $line->setClass('line');
             $this->grid[] = $line;
         }
 
@@ -235,7 +277,7 @@ class Graphic extends Shape {
             $line = Shape::path()
                 ->addPoint('M', new Point($this->getCoordonneeX($this->xMax), $step->getAnchor()->getY()))
                 ->addPoint('L', new Point($this->getCoordonneeX($this->xMin), $step->getAnchor()->getY()));
-            $line->getStyle()->setStroke('#ccc')->setStrokeWidth(1);
+            $line->setClass('line');
             $this->grid[] = $line;
         }
 
@@ -265,7 +307,9 @@ class Graphic extends Shape {
         $this->fullCurve->display();
         $this->abscisse->display();
         $this->ordonnee->display();
-        $this->pathCurve->display();
+        if($this->options->read('path')) {
+            $this->pathCurve->display();
+        }
         foreach ($this->anchors as $anchor) {
             $anchor->display();
         }
