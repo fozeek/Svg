@@ -37,8 +37,12 @@ abstract class Shape {
         return new Line($point1, $point2, $style);
     }
 
-    static public function Cake(Point $anchor, $radius, $begin, $end) {
-        return new Cake($anchor, $radius, $begin, $end);
+    static public function CakePart(Point $anchor, $radius, $begin, $end) {
+        return new CakePart($anchor, $radius, $begin, $end);
+    }
+
+    static public function Cake(Point $anchor, $radius, $percents, $options = array()) {
+        return new Cake($anchor, $radius, $percents, $options);
     }
 
     public function getStyle() {
