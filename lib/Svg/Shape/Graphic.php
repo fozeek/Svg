@@ -141,16 +141,14 @@ class Graphic extends Shape {
             $this->minAbscisse,
             $this->maxAbscisse
         );
-        $this->abscisse->getStyle()->setStroke('black')
-                        ->setStrokeWidth('1');
+        $this->abscisse->setClass('line');
         $this->ordonnee = Shape::line(
             // new Point(($this->origine->getX()).$this->percent, ($this->options->read('anchor')->getY()).$this->percent),
             // new Point(($this->origine->getX()).$this->percent, ($this->options->read('anchor')->getY() + $this->options->read('height')).$this->percent)
             $this->minOrdonnee,
             $this->maxOrdonnee
         );
-        $this->ordonnee->getStyle()->setStroke('black')
-                        ->setStrokeWidth('1');
+        $this->ordonnee->setClass('line');
 
         $this->graphic = Shape::rect($this->options->read('anchor'), $this->options->read('width').$this->percent, $this->options->read('height').$this->percent);
         $this->graphic->setClass('rect');
@@ -233,12 +231,14 @@ class Graphic extends Shape {
         }
         for ($cpt = $units;$cpt <= $this->xMax;$cpt += $units) {
             if($cpt > $this->xMin) {
-                $this->xSteps[] = Shape::text(new Point($this->getCoordonneeX($cpt), $this->abscisseY+15), $cpt, new Style(array('textAnchor' => 'middle')));
+                $shape = Shape::text(new Point($this->getCoordonneeX($cpt), $this->abscisseY+15), $cpt, new Style(array('textAnchor' => 'middle')));
+                $this->xSteps[] = $shape->setClass('dot');
             }
         }
         for ($cpt = -$units;$cpt >= $this->xMin;$cpt -= $units) {
             if($cpt < $this->xMax) {
-                $this->xSteps[] = Shape::text(new Point($this->getCoordonneeX($cpt), $this->abscisseY+15), $cpt, new Style(array('textAnchor' => 'middle')));
+                $shape = Shape::text(new Point($this->getCoordonneeX($cpt), $this->abscisseY+15), $cpt, new Style(array('textAnchor' => 'middle')));
+                $this->xSteps[] = $shape->setClass('dot');
             }
         }
 
@@ -251,12 +251,14 @@ class Graphic extends Shape {
 
         for ($cpt = $units;$cpt <= $this->yMax;$cpt += $units) {
             if($cpt > $this->yMin) {
-                $this->ySteps[] = Shape::text(new Point($this->ordonneX+10, $this->getCoordonneeY($cpt)), $cpt, new Style(array('textAnchor' => 'right', 'baselineShift' => '-0.5ex'))); 
+                $shape = Shape::text(new Point($this->ordonneX-10, $this->getCoordonneeY($cpt)), $cpt, new Style(array('textAnchor' => 'end', 'baselineShift' => '-0.5ex')));
+                $this->ySteps[] = $shape->setClass('dot');
             }
         }
         for ($cpt = -$units;$cpt >= $this->yMin;$cpt -= $units) {
             if($cpt < $this->yMax) {
-                $this->ySteps[] = Shape::text(new Point($this->ordonneX+10, $this->getCoordonneeY($cpt)), $cpt, new Style(array('textAnchor' => 'right', 'baselineShift' => '-0.5ex'))); 
+                $shape = Shape::text(new Point($this->ordonneX+10, $this->getCoordonneeY($cpt)), $cpt, new Style(array('textAnchor' => 'middle', 'baselineShift' => '-0.5ex')));
+                $this->ySteps[] = $shape->setClass('dot');
             }
         }
 

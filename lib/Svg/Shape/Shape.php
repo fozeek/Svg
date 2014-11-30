@@ -25,12 +25,20 @@ abstract class Shape {
         return new Path($style);
     }
 
+    static public function point($x, $y) {
+        return new Point($x, $y);
+    }
+
     static public function graphic(array $datas = array(), array $options = array()) {
         return new Graphic($datas, $options);
     }
 
     static public function line(Point $point1, Point $point2,  Style $style = null) {
         return new Line($point1, $point2, $style);
+    }
+
+    static public function Cake(Point $anchor, $radius, $begin, $end) {
+        return new Cake($anchor, $radius, $begin, $end);
     }
 
     public function getStyle() {

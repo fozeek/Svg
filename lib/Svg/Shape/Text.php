@@ -18,7 +18,7 @@ class Text extends Shape {
     }
 
     public function display() {
-        echo '<text x="'.$this->anchor->getX().'" y="'.$this->anchor->getY().'" style="'.$this->getStyle()->getString().'">'.$this->text.'</text>';
+        echo '<text x="'.$this->anchor->getX().'" y="'.$this->anchor->getY().'" style="'.parent::getStyle()->getString().'" class="'.parent::getClass().'">'.$this->text.'</text>';
     }
 
     public function getAnchor() {

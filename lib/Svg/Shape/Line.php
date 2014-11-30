@@ -18,7 +18,7 @@ class Line extends Shape {
 	}
 
 	public function display() {
-		echo '<line x1="'.$this->point1->getX().'" y1="'.$this->point1->getY().'" x2="'.$this->point2->getX().'" y2="'.$this->point2->getY().'" style="'.$this->style->getString().'"/>';
+		echo '<line x1="'.$this->point1->getX().'" y1="'.$this->point1->getY().'" x2="'.$this->point2->getX().'" y2="'.$this->point2->getY().'" style="'.parent::getStyle()->getString().'" class="'.parent::getClass().'"/>';
 	}
 
 }
