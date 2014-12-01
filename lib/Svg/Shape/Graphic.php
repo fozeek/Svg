@@ -299,28 +299,30 @@ class Graphic extends Shape {
     }
 
     public function display() {
-        $this->graphic->display();
+        $string = '';
+        $string .= $this->graphic->display();
         foreach ($this->grid as $line) {
-            $line->display();
+            $string .= $line->display();
         }
 
         //shape::circle($this->origine, 10)->setClass('circle')->display();
 
-        $this->fullCurve->display();
-        $this->abscisse->display();
-        $this->ordonnee->display();
+        $string .= $this->fullCurve->display();
+        $string .= $this->abscisse->display();
+        $string .= $this->ordonnee->display();
         if($this->options->read('path')) {
-            $this->pathCurve->display();
+            $string .= $this->pathCurve->display();
         }
         foreach ($this->anchors as $anchor) {
-            $anchor->display();
+            $string .= $anchor->display();
         }
         foreach ($this->xSteps as $step) {
-            $step->display();
+            $string .= $step->display();
         }
         foreach ($this->ySteps as $step) {
-            $step->display();
+            $string .= $step->display();
         }
+        return $string;
     }
 
 }

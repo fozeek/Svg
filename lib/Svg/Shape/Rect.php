@@ -23,7 +23,7 @@ class Rect extends Shape {
     }
 
     public function display() {
-        echo '<rect x="'.$this->anchor->getX().'" y="'.$this->anchor->getY().'" width="'.$this->width.'" height="'.$this->height.'" style="'.parent::getStyle()->getString().'"  class="'.parent::getClass().'"/>';
+        return '<rect x="'.$this->anchor->getX().'" y="'.$this->anchor->getY().'" width="'.$this->width.'" height="'.$this->height.'" style="'.parent::getStyle()->getString().'"  class="'.parent::getClass().'"/>';
     }
 
     public function getAnchor() {

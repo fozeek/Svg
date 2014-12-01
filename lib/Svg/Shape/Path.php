@@ -39,7 +39,7 @@ class Path extends Shape {
                 $d .= $value['point']->getX().','.$value['point']->getY() . ' ' .$end . ' ';
             }
         }
-        echo '<path d="'.$d.'" style="'.parent::getStyle()->getString().'" class="'.parent::getClass().'"/>';
+        return '<path d="'.$d.'" style="'.parent::getStyle()->getString().'" class="'.parent::getClass().'"/>';
     }
 
 }

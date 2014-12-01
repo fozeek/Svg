@@ -24,11 +24,13 @@ class Svg {
     }
 
     public function display($inline = false) {
-        echo '<svg width="'.$this->width.'" height="'.$this->height.'" style="' . $this->getStyle()->getString() . '" class="' . $this->getClass() . '">';
+        $string = '';
+        $string .= '<svg width="'.$this->width.'" height="'.$this->height.'" style="' . $this->getStyle()->getString() . '" class="' . $this->getClass() . '">';
         foreach ($this->shapes as $shape) {
-            $shape->display();
+            $string .= $shape->display();
         }
-        echo '</svg>';
+        $string .= '</svg>';
+        return $string;
     }
 
     public function getWidth() {

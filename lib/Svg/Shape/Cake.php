@@ -21,6 +21,7 @@ class Cake extends Shape
 
     public function display() 
     {
+        $string = '';
         for($cpt = 0;$cpt<count($this->percents)-1;$cpt++) {
             $cakepart = Shape::CakePart($this->anchor, $this->radius, $this->percents[$cpt], $this->percents[$cpt+1]);
             if(is_array($this->options['class']) && isset($this->options['class'][$cpt])) {
@@ -28,7 +29,8 @@ class Cake extends Shape
             } elseif (isset($this->options['class'])) {
                 $cakepart->setClass(str_replace(':cpt', $cpt, $this->options['class']));
             }
-            $cakepart->display();
+            $string .= $cakepart->display();
         }
+        return $string;
     }
 }

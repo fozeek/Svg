@@ -18,7 +18,7 @@ class CakePart extends Shape
         $this->anchor = $anchor;
         $this->radius = $radius;
         $this->begin = $begin;
-        $this->end = $end;
+        $this->end = $end - 1;
         $this->direction = $direction;
         $this->start = $start;
     }
@@ -67,7 +67,7 @@ class CakePart extends Shape
         }
 
         //echo '<path d="M' . $this->anchor->getX() . ',' . $this->anchor->getY() . ' L' . $beginX . ',' . $beginY . ' a' . $this->radius . ',' . $this->radius . ' 0 ' . $orientation . ',0 ' . $x . ',' . $y . ' z" class="' . parent::getClass() . '" style="' . parent::getStyle() . '" />';
-        echo '<path d="M' . $beginX . ',' . $beginY . ' a' . $this->radius . ',' . $this->radius . ' 0 ' . $orientation . ',' . $way . ' ' . $x . ',' . $y . '" class="' . parent::getClass() . '" style="' . parent::getStyle()->getString() . '" />';
+        return '<path d="M' . $beginX . ',' . $beginY . ' a' . $this->radius . ',' . $this->radius . ' 0 ' . $orientation . ',' . $way . ' ' . $x . ',' . $y . '" class="' . parent::getClass() . '" style="' . parent::getStyle()->getString() . '" />';
     
     }
 }

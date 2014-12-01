@@ -21,7 +21,7 @@ class Circle extends Shape {
     }
 
     public function display() {
-        echo '<circle cx="'.$this->center->getX().'" cy="'.$this->center->getY().'" r="'.$this->rayon.'" style="'.parent::getStyle()->getString().'" class="'.parent::getClass().'"/>';
+        return '<circle cx="'.$this->center->getX().'" cy="'.$this->center->getY().'" r="'.$this->rayon.'" style="'.parent::getStyle()->getString().'" class="'.parent::getClass().'"/>';
     }
 
     public function setCenter(Point $center) {
