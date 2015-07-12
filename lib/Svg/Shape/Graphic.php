@@ -82,10 +82,16 @@ class Graphic extends Shape {
         } else {
             $this->xMax = max(array_keys($this->datas));
         }
+        if($this->xMax == 0) {
+            $this->xMax = 10;
+        }
         if($this->options->read('yMax')) {
             $this->yMax = $options['yMax'];
         } else {
             $this->yMax = max(array_values($this->datas));
+        }
+        if($this->yMax == 0) {
+            $this->yMax = 10;
         }
         if($this->options->read('xMin')) {
             $this->xMin = $options['xMin'];
